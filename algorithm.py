@@ -31,7 +31,7 @@ class PType(enum.Enum):
     TA = 2
 
 def p_infect(person0, person1, event_infection_risk):
-    return person1.infected + getHealthMultiplier(person1)*getAgeMultiplier(person0, person1)*(1-person1.infected)*event_infection_risk*person0.infected
+    return min(1, person1.infected + getHealthMultiplier(person1)*getAgeMultiplier(person0, person1)*(1-person1.infected)*event_infection_risk*person0.infected)
 
 class Person:
     def __init__(self, ptype):
@@ -240,25 +240,26 @@ def simulate():
                             to_worker = workers[j]
                             to_worker.infected = p_infect(from_worker, to_worker, ta_teacher_infect_prob)
                 
-                tas_students = pquery.getTAsInClass(c, cur_period) + students
+                tas = pquery.getTAsInClass(c, cur_period)
                 ta_student_infect_prob = probability_of_infection_in_class_ta_and_student(classSize)
-                for i in range(len(tas_students)):
-                    for j in range(len(tas_students)):
-                        if (i != j):
-                            from_ta_student = tas_students[i]
-                            to_ta_student = tas_students[j]
-                            to_ta_student.infected = p_infect(from_ta_student, to_ta_student, ta_student_infect_prob)
+                for i in range(len(tas)):
+                    for j in range(len(students)):
+                        ta = tas[i]
+                        student = students[j]
+                        student.infected = p_infect(ta, student, ta_student_infect_prob)
+                        ta.infected = p_infect(student, ta, ta_student_infect_prob)
                 
-                students_teachers = pquery.getTeachersInClass(c, cur_period) + students
+                teachers = pquery.getTeachersInClass(c, cur_period)
                 student_teacher_infect_prob = probability_of_infection_in_class_teacher_and_student(classSize)
-                for i in range(len(students_teachers)):
-                    for j in range(len(students_teachers)):
-                        if (i != j):
-                            from_student_teacher = students_teachers[i]
-                            to_student_teacher = students_teachers[j]
-                            to_student_teacher.infected = p_infect(from_student_teacher, to_student_teacher, student_teacher_infect_prob)
+                for i in range(len(teachers)):
+                    for j in range(len(students)):
+                        teacher = teachers[i]
+                        student = students[j]
+                        teacher.infected = p_infect(student, teacher, student_teacher_infect_prob)
+                        student.infected = p_infect(teacher, student, student_teacher_infect_prob)
                 
                 if (cur_period in ['p1', 'p3']):
+                    tas_students = pquery.getTAsInClass(c, cur_period) + pquery.getStudentsInClass(c, cur_period)
                     tas_students_next = pquery.getTAsInClassNext(c, cur_period) + pquery.getStudentsInClassNext(c, cur_period)
                     switching_class_infect_prob = probability_of_infection_switching_classes(len(tas_students), len(tas_students_next))
                     for i in range(len(tas_students)):
@@ -314,24 +315,44 @@ def simulate():
         
         return pquery, data
         
-def getDataForVisualization(pquery, data):
+def getDataForVisualization():
+    pquery, data = simulate()
     classes = data[1]['Class'].unique()
+    clubs = []
+    for i in data[0]['Extracurricular Activities']:
+        if (str(i) != 'nan'):
+            cur_clubs = i.split(',')
+            for j in cur_clubs:
+                if j not in clubs:
+                    clubs.append(j)
     
     periods = []
-    for i in range(4):
-        cur_period = 'p{}'.format(i+1)
+    for i in range(len(times)):
+        cur_period = times[i]
         period = {}
-        for c in classes:
-            period[c] = []
-        for c in classes:
-            people = pquery.getStudentsInClass(c, cur_period) + pquery.getTeachersInClass(c, cur_period) + pquery.getTAsInClass(c, cur_period)
-            for p in people:
-                period[c].append(p)
+        if (cur_period in ['p1', 'p2', 'p3', 'p4']):
+            for c in classes:
+                period[c] = []
+            for c in classes:
+                people = pquery.getStudentsInClass(c, cur_period) + pquery.getTeachersInClass(c, cur_period) + pquery.getTAsInClass(c, cur_period)
+                for p in people:
+                    period[c].append(p)
+        elif (cur_period == 'lunch'):
+            for g in range(9, 13):
+                period['Grade{}'.format(g)] = pquery.getStudentsInGrade(g)
+            period['Workers'] = pquery.teachers + pquery.tas
+        elif (cur_period == 'extra'):
+            for c in clubs:
+                period[c] = []
+            for c in clubs:
+                people = pquery.getAllInExtraCurricular(c)
+                for p in people:
+                    period[c].append(p)
         periods.append(period)
     return periods
         
 pquery, data = simulate()
-
+    
 
 #"Unit" Tests
 

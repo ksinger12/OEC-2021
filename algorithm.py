@@ -18,8 +18,8 @@ def timeToPeriod(time):
         return None
 
 #Helper functions
-def getAgeMultiplier(infected, notInfected):
-    ageDiff = notInfected.grade - infected.grade
+def getAgeMultiplier(person0, person1):
+    ageDiff = person1.grade - person0.grade
     return pow(1.5, ageDiff/2)
 
 def getHealthMultiplier(person):
@@ -31,7 +31,7 @@ class PType(enum.Enum):
     TA = 2
 
 def p_infect(person0, person1, event_infection_risk):
-    return person1.infected + (1-person1.infected)*event_infection_risk*person0.infected
+    return person1.infected + getHealthMultiplier(person1)*getAgeMultiplier(person0, person1)*(1-person1.infected)*event_infection_risk*person0.infected
 
 class Person:
     def __init__(self, ptype):
@@ -214,8 +214,10 @@ def simulate():
         
         if (cur_period in ['p1', 'p2', 'p3', 'p4']): #a class period
             for c in classes:
+                classSize = len(pquery.getStudentsInClass(c, cur_period) + pquery.getTeachersInClass(c, cur_period) + pquery.getTAsInClass(c, cur_period))
+                
                 students = pquery.getStudentsInClass(c, cur_period)
-                student_infect_prob = probability_of_infection_in_class(len(students))
+                student_infect_prob = probability_of_infection_in_class(classSize)
                 for i in range(len(students)):
                     for j in range(len(students)):
                         if i != j:
@@ -224,7 +226,7 @@ def simulate():
                             to_student.infected = p_infect(from_student, to_student, student_infect_prob)
                 
                 workers = pquery.getWorkersInClass(c, cur_period)
-                ta_teacher_infect_prob = probability_of_infection_in_class_teacher_and_ta(len(workers))
+                ta_teacher_infect_prob = probability_of_infection_in_class_teacher_and_ta(classSize)
                 for i in range(len(workers)):
                     for j in range(len(workers)):
                         if (i != j):
@@ -233,7 +235,7 @@ def simulate():
                             to_worker.infected = p_infect(from_worker, to_worker, ta_teacher_infect_prob)
                 
                 tas_students = pquery.getTAsInClass(c, cur_period) + students
-                ta_student_infect_prob = probability_of_infection_in_class_ta_and_student(len(tas_student))
+                ta_student_infect_prob = probability_of_infection_in_class_ta_and_student(classSize)
                 for i in range(len(tas_students)):
                     for j in range(len(tas_students)):
                         if (i != j):
@@ -242,7 +244,7 @@ def simulate():
                             to_ta_student.infected = p_infect(from_ta_student, to_ta_student, ta_student_infect_prob)
                 
                 students_teachers = pquery.getTeachersInClass(c, cur_period) + students
-                student_teacher_infect_prob = probability_of_infection_in_class_teacher_and_student(len(students_teachers))
+                student_teacher_infect_prob = probability_of_infection_in_class_teacher_and_student(classSize)
                 for i in range(len(students_teachers)):
                     for j in range(len(students_teachers)):
                         if (i != j):

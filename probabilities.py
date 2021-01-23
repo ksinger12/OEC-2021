@@ -103,7 +103,6 @@ def probability_of_infection_during_lunch_different_grade(num_students_on_lunch_
 
 def probability_of_infection_during_extra_curricular(extra_curricular, num_students_in_extra_curricular):
     carefulnessAndExposureOfActivities = {
-        # in close proximity
         "Board Game Club": (0.7, 0.7, protection_measures["on"], protection_measures["off"]),
         "Football": (0.7, 0.3, protection_measures["off"], protection_measures["on"]),
         "Band": (0.7, 0.6, protection_measures["on"], protection_measures["off"]),

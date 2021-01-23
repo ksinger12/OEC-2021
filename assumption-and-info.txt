@@ -1,7 +1,6 @@
 Possible methods of interactions: 
 - Classes
 - Switching Classes
-- Free periods
 - Lunch (more likely if they know the person, i.e. with grades)
 - Extra curricular
 - Overlap of Teachers

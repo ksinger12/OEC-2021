@@ -27,4 +27,4 @@ Assumptions:
 - Time of exposure effects the probability of being infected
     - i.e. in class for 45 minutes (relative to exposure) will have a higherly likelihood of leading to other infections than switching between classes
         - Note: this example is only related to time of exposure, it does not account for other variables
-        
+- Extra curriculars are outside of normal scheduling but are the length of a period (45 minutes) and do count towards the days work        

@@ -1,4 +1,5 @@
 from parseData import getData
+from probabilities import *
 import numpy as np
 import enum
 import math
@@ -94,18 +95,57 @@ class PeopleQuery:
     def getInfected(self):
         return [p for p in self.people if p.infected == 1]
     
-    def getAllInClass(self, className, time):
+    def getStudentsInClass(self, className, time):
         period = timeToPeriod(time)
         if (period == None):
             return []
-        return [p for p in self.people if p.classes[period] == className]
+        return [p for p in self.students if p.classes[period] == className]
     
-    def getAllInClassNext(self, className, time):
+    def getStudentsInClassNext(self, className, time):
         period = timeToPeriod(time)
         if (period == None):
             return []
         if period == 0 or period == 2:
-            return [p for p in self.people if p.classes[period+1] == className]
+            return [p for p in self.students if p.classes[period+1] == className]
+        else:
+            return []
+    
+    def getStudentsInGrade(self, grade):
+        return [p for p in self.students if p.grade == grade]
+    
+    def getTeachersInClass(self, className, time):
+        period = timeToPeriod(time)
+        if (period == None):
+            return []
+        return [p for p in self.teachers if p.classes[period] == className]
+    
+    def getTAsInClass(self, className, time):
+        period = timeToPeriod(time)
+        if (period == None):
+            return []
+        return [p for p in self.tas if p.classes[period] == className]
+    
+    def getTAsInClassNext(self, className, time):
+        period = timeToPeriod(time)
+        if (period == None):
+            return []
+        if (period == 0 or period == 2):
+            return [p for p in self.tas if p.classes[period] == className]
+        else:
+            return []
+    
+    def getWorkersInClass(self, className, time):
+        period = timeToPeriod(time)
+        if (period == None):
+            return []
+        return [p for p in self.teachers+self.tas if p.classes[period] == className]
+    
+    def getWorkersInClassNext(self, className, time):
+        period = timeToPeriod(time)
+        if (period == None):
+            return []
+        if (period == 0 or period == 2):
+            return [p for p in self.teachers+self.tas if p.classes[period] == className]
         else:
             return []
         
@@ -173,7 +213,96 @@ def simulate():
         cur_period = times[t]
         
         if (cur_period in ['p1', 'p2', 'p3', 'p4']): #a class period
+            for c in classes:
+                students = pquery.getStudentsInClass(c, cur_period)
+                student_infect_prob = probability_of_infection_in_class(len(students))
+                for i in range(len(students)):
+                    for j in range(len(students)):
+                        if i != j:
+                            from_student = students[i]
+                            to_student = students[j]
+                            to_student.infected = p_infect(from_student, to_student, student_infect_prob)
+                
+                workers = pquery.getWorkersInClass(c, cur_period)
+                ta_teacher_infect_prob = probability_of_infection_in_class_teacher_and_ta(len(workers))
+                for i in range(len(workers)):
+                    for j in range(len(workers)):
+                        if (i != j):
+                            from_worker = workers[i]
+                            to_worker = workers[j]
+                            to_worker.infected = p_infect(from_worker, to_worker, ta_teacher_infect_prob)
+                
+                tas_students = pquery.getTAsInClass(c, cur_period) + students
+                ta_student_infect_prob = probability_of_infection_in_class_ta_and_student(len(tas_student))
+                for i in range(len(tas_students)):
+                    for j in range(len(tas_students)):
+                        if (i != j):
+                            from_ta_student = tas_students[i]
+                            to_ta_student = tas_students[j]
+                            to_ta_student.infected = p_infect(from_ta_student, to_ta_student, ta_student_infect_prob)
+                
+                students_teachers = pquery.getTeachersInClass(c, cur_period) + students
+                student_teacher_infect_prob = probability_of_infection_in_class_teacher_and_student(len(students_teachers))
+                for i in range(len(students_teachers)):
+                    for j in range(len(students_teachers)):
+                        if (i != j):
+                            from_student_teacher = students_teachers[i]
+                            to_student_teacher = students_teachers[j]
+                            to_student_teacher.infected = p_infect(from_student_teacher, to_student_teacher, student_teacher_infect_prob)
+                
+                if (cur_period in ['p1', 'p3']):
+                    tas_students_next = pquery.getTAsInClassNext(c, cur_period) + pquery.getStudentsInClassNext(c, cur_period)
+                    switching_class_infect_prob = probability_of_infection_switching_classes(len(tas_students), len(tas_students_next))
+                    for i in range(len(tas_students)):
+                        for j in range(len(tas_students_next)):
+                            prob_to_next = p_infect(tas_students[i], tas_students_next[j], switching_class_infect_prob)
+                            prob_for_cur = p_infect(tas_students_next[j], tas_students[i], switching_class_infect_prob)
+                            tas_students[i].infected = prob_for_cur
+                            tas_students_next[j].infected = prob_to_next
+        elif (cur_period == 'lunch'):
+            workers = pquery.teachers + pquery.tas
+            staff_lunch_infect_prob = probability_of_infection_during_lunch_staff(len(workers))
+            for i in range(len(workers)):
+                for j in range(len(workers)):
+                    if i != j:
+                        from_worker = workers[i]
+                        to_worker = workers[j]
+                        to_worker.infected = p_infect(from_worker, to_worker, staff_lunch_infect_prob)
             
+            grades = []
+            for g in range(9, 13):
+                grade = pquery.getStudentsInGrade(g)
+                grades.append(grade)
+                grade_lunch_infect_prob = probability_of_infection_during_lunch_same_grade(len(grade))
+                for i in range(len(grade)):
+                    for j in range(len(grade)):
+                        if i != j:
+                            from_student = grade[i]
+                            to_student = grade[j]
+                            to_student.infected = p_infect(from_student, to_student, grade_lunch_infect_prob)
+            
+            for g in range(len(grades)):
+                cur = grades[g]
+                other = []
+                for i in range(len(grades)):
+                    if i != g:
+                        other += grades[i]
+                grade_lunch_other_infect_prob = probability_of_infection_during_lunch_different_grade(len(cur+grades))
+                for i in range(len(cur)):
+                    for j in range(len(other)):
+                        from_student = cur[i]
+                        to_student = other[j]
+                        to_student.infected = p_infect(from_student, to_student, grade_lunch_other_infect_prob)
+        elif (cur_period == 'extra'):
+            for c in clubs:
+                students = pquery.getAllInExtraCurricular(c)
+                club_infect_prob = probability_of_infection_during_extra_curricular(c, len(students))
+                for i in range(len(students)):
+                    for j in range(len(students)):
+                        if i != j:
+                            from_student = students[i]
+                            to_student = students[j]
+                            to_student.infected = p_infect(from_student, to_student, club_infect_prob)
         
 simulate()
     

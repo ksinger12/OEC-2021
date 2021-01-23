@@ -16,13 +16,21 @@ def timeToPeriod(time):
     else:
         return None
 
+#Helper functions
+def getAgeMultiplier(infected, notInfected):
+    ageDiff = notInfected.grade - infected.grade
+    return pow(1.5, ageDiff/2)
+
+def getHealthMultiplier(person):
+    return 1.0 if person.health == None else 1.7
+
 class PType(enum.Enum):
     Student = 0
     Teacher = 1
     TA = 2
 
-def p_infect(person0, person1, event):
-    pass
+def p_infect(person0, person1, event_infection_risk):
+    return person1.infected + (1-person1.infected)*event_infection_risk*person0.infected
 
 class Person:
     def __init__(self, ptype):
@@ -34,7 +42,7 @@ class Person:
         self.clubs = None
         self.health = None
         self.iden_num = -1
-        self.infected = False
+        self.infected = 0
     
     #Expects a row from the dataframe for a given person
     def setData(self, data):
@@ -48,7 +56,7 @@ class Person:
             if (type(data['Extracurricular Activities']) == str):
                 self.clubs = data['Extracurricular Activities'].split(',')
             if (type(data['Health Conditions']) == str):
-                self.clubs = data['Health Conditions']
+                self.health = data['Health Conditions']
         elif self.ptype == PType.Teacher:
             for i in range(4):
                 self.classes[i] = data['Class']
@@ -84,7 +92,7 @@ class PeopleQuery:
         self.people = data
         
     def getInfected(self):
-        return [p for p in self.people if p.infected == True]
+        return [p for p in self.people if p.infected == 1]
     
     def getAllInClass(self, className, time):
         period = timeToPeriod(time)
@@ -103,10 +111,6 @@ class PeopleQuery:
         
     def getAllInExtraCurricular(self, club):
         return [p for p in self.students if p.clubs != None and club in p.clubs]
-
-class Event:
-    def __init__(self):
-        pass
 
 def simulate():
     data = getData()
@@ -127,7 +131,7 @@ def simulate():
         newPerson.setData(data[0].iloc[i])
         for j in infectedStudents:
             if newPerson.iden_num == j:
-                newPerson.setInfected(True)
+                newPerson.setInfected(1)
         people.append(newPerson)
         students.append(newPerson)
     for i in range(len(data[1])):
@@ -135,7 +139,7 @@ def simulate():
         newPerson.setData(data[1].iloc[i])
         for i in infectedOthers:
             if (i['fname'] == newPerson.fname and i['lname'] == newPerson.lname):
-                newPerson.setInfected(True)
+                newPerson.setInfected(1)
         people.append(newPerson)
         teachers.append(newPerson)
     for i in range(len(data[2])):
@@ -143,7 +147,7 @@ def simulate():
         newPerson.setData(data[2].iloc[i])
         for i in infectedOthers:
             if (i['fname'] == newPerson.fname and i['lname'] == newPerson.lname):
-                newPerson.setInfected(True)
+                newPerson.setInfected(1)
         people.append(newPerson)
         tas.append(newPerson)
     
@@ -161,9 +165,15 @@ def simulate():
     pquery.setTAs(tas)
     pquery.setPeople(people)
     
+    classes = data[1]['Class'].unique()
+    clubs = data[0]['Extracurricular Activities'].unique()
+    
     #Iterate over every time step (the periods, lunch, and clubs after school)
     for t in range(len(times)):
         cur_period = times[t]
+        
+        if (cur_period in ['p1', 'p2', 'p3', 'p4']): #a class period
+            pass
         
 simulate()
     

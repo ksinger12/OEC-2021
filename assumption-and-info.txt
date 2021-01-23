@@ -1,0 +1,26 @@
+Possible methods of interactions: 
+- Classes
+- Switching Classes
+- Free periods
+- Lunch (more likely if they know the person, i.e. with grades)
+- Extra curricular
+- Overlap of Teachers
+- Overlap of TA's
+
+Number of people:
+- 580 students
+- 20 teachers
+- 5 TAs
+
+Average ages:
+- Grade 9 -> 14-15
+- Grade 10 -> 15-16
+- Grade 11 -> 16-17
+- Grade 12 -> 17-18
+- TAs -> ~22 -> usually refers to university students either towards post-undergrad or in their late undergrad
+- Teachers -> ~43 (in Ontario) -> source: https://www.google.com/search?q=average+age+of+teaching+assistants+high+school+ontario&rlz=1C5CHFA_enCA815CA815&oq=average+age+of+teaching+assistants+high+school+ontario&aqs=chrome..69i57j0i333.10087j0j7&sourceid=chrome&ie=UTF-8
+
+Assumptions:
+- Desks are cleaned perfectly so no transmission will occur from touching the same surface as someone else
+- TAs are later/post-grad university students
+- 

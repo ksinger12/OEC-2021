@@ -206,7 +206,13 @@ def simulate():
     pquery.setPeople(people)
     
     classes = data[1]['Class'].unique()
-    clubs = data[0]['Extracurricular Activities'].unique()
+    clubs = []
+    for i in data[0]['Extracurricular Activities']:
+        if (str(i) != 'nan'):
+            cur_clubs = i.split(',')
+            for j in cur_clubs:
+                if j not in clubs:
+                    clubs.append(j)
     
     #Iterate over every time step (the periods, lunch, and clubs after school)
     for t in range(len(times)):

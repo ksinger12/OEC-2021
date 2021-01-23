@@ -3,6 +3,7 @@ from probabilities import *
 import numpy as np
 import enum
 import math
+import copy
 
 times = ['p1', 'p2', 'lunch', 'p3', 'p4', 'extra']
 def timeToPeriod(time):
@@ -83,12 +84,28 @@ class PeopleQuery:
         self.tas = []
         self.people = []
         
+    def print_people(self):
+        print('Students')
+        for i in self.students:
+            print(i)
+        print('------------------------------------------------------------------')
+        print('Teachers')
+        for i in self.teachers:
+            print(i)
+        print('------------------------------------------------------------------')
+        print('TAs')
+        for i in self.tas:
+            print(i)
+        
     def setStudents(self, data):
         self.students = data
+        
     def setTeachers(self, data):
         self.teachers = data
+        
     def setTAs(self, data):
         self.tas = data
+        
     def setPeople(self, data):
         self.people = data
         
@@ -223,88 +240,116 @@ def simulate():
                 classSize = len(pquery.getStudentsInClass(c, cur_period) + pquery.getTeachersInClass(c, cur_period) + pquery.getTAsInClass(c, cur_period))
                 
                 students = pquery.getStudentsInClass(c, cur_period)
+                workers = pquery.getWorkersInClass(c, cur_period)
+                tas = pquery.getTAsInClass(c, cur_period)
+                teachers = pquery.getTeachersInClass(c, cur_period)
+                tas_students = pquery.getTAsInClass(c, cur_period) + pquery.getStudentsInClass(c, cur_period)
+                tas_students_next = pquery.getTAsInClassNext(c, cur_period) + pquery.getStudentsInClassNext(c, cur_period)
+                
+                pquery_copy = copy.deepcopy(pquery)
+                students_copy = pquery_copy.getStudentsInClass(c, cur_period)
+                workers_copy = pquery_copy.getWorkersInClass(c, cur_period)
+                tas_copy = pquery_copy.getTAsInClass(c, cur_period)
+                teachers_copy = pquery_copy.getTeachersInClass(c, cur_period)
+                tas_students_copy = pquery_copy.getTAsInClass(c, cur_period) + pquery_copy.getStudentsInClass(c, cur_period)
+                tas_students_next_copy = pquery_copy.getTAsInClassNext(c, cur_period) + pquery_copy.getStudentsInClassNext(c, cur_period)
+                
+                
                 student_infect_prob = probability_of_infection_in_class(classSize)
                 for i in range(len(students)):
                     for j in range(len(students)):
                         if i != j:
                             from_student = students[i]
                             to_student = students[j]
-                            to_student.infected = p_infect(from_student, to_student, student_infect_prob)
+                            students_copy[j].infected = p_infect(from_student, to_student, student_infect_prob)
                 
-                workers = pquery.getWorkersInClass(c, cur_period)
-                ta_teacher_infect_prob = probability_of_infection_in_class_teacher_and_ta(classSize)
+                ta_teacher_infect_prob = probability_of_infection_in_class_teacher_and_ta()
                 for i in range(len(workers)):
                     for j in range(len(workers)):
                         if (i != j):
                             from_worker = workers[i]
                             to_worker = workers[j]
-                            to_worker.infected = p_infect(from_worker, to_worker, ta_teacher_infect_prob)
+                            workers_copy[j].infected = p_infect(from_worker, to_worker, ta_teacher_infect_prob)
                 
-                tas = pquery.getTAsInClass(c, cur_period)
                 ta_student_infect_prob = probability_of_infection_in_class_ta_and_student(classSize)
                 for i in range(len(tas)):
                     for j in range(len(students)):
                         ta = tas[i]
                         student = students[j]
-                        student.infected = p_infect(ta, student, ta_student_infect_prob)
-                        ta.infected = p_infect(student, ta, ta_student_infect_prob)
+                        students_copy[j].infected = p_infect(ta, student, ta_student_infect_prob)
+                        tas_copy[i].infected = p_infect(student, ta, ta_student_infect_prob)
                 
-                teachers = pquery.getTeachersInClass(c, cur_period)
                 student_teacher_infect_prob = probability_of_infection_in_class_teacher_and_student(classSize)
                 for i in range(len(teachers)):
                     for j in range(len(students)):
                         teacher = teachers[i]
                         student = students[j]
-                        teacher.infected = p_infect(student, teacher, student_teacher_infect_prob)
-                        student.infected = p_infect(teacher, student, student_teacher_infect_prob)
+                        teachers_copy[i].infected = p_infect(student, teacher, student_teacher_infect_prob)
+                        students_copy[j].infected = p_infect(teacher, student, student_teacher_infect_prob)
                 
                 if (cur_period in ['p1', 'p3']):
-                    tas_students = pquery.getTAsInClass(c, cur_period) + pquery.getStudentsInClass(c, cur_period)
-                    tas_students_next = pquery.getTAsInClassNext(c, cur_period) + pquery.getStudentsInClassNext(c, cur_period)
                     switching_class_infect_prob = probability_of_infection_switching_classes(len(tas_students), len(tas_students_next))
                     for i in range(len(tas_students)):
                         for j in range(len(tas_students_next)):
                             prob_to_next = p_infect(tas_students[i], tas_students_next[j], switching_class_infect_prob)
                             prob_for_cur = p_infect(tas_students_next[j], tas_students[i], switching_class_infect_prob)
-                            tas_students[i].infected = prob_for_cur
-                            tas_students_next[j].infected = prob_to_next
+                            tas_students_copy[i].infected = prob_for_cur
+                            tas_students_next_copy[j].infected = prob_to_next
+                            
+                pquery = pquery_copy
         elif (cur_period == 'lunch'):
             workers = pquery.teachers + pquery.tas
+            grades = []
+            for i in range(9, 13):
+                grades.append(pquery.getStudentsInGrade(i))
+            
+            pquery_copy = copy.deepcopy(pquery)
+            workers_copy = pquery_copy.teachers + pquery_copy.tas
+            grades_copy = []
+            for i in range(9, 13):
+                grades_copy.append(pquery_copy.getStudentsInGrade(i))
+            
             staff_lunch_infect_prob = probability_of_infection_during_lunch_staff(len(workers))
             for i in range(len(workers)):
                 for j in range(len(workers)):
                     if i != j:
                         from_worker = workers[i]
                         to_worker = workers[j]
-                        to_worker.infected = p_infect(from_worker, to_worker, staff_lunch_infect_prob)
+                        workers_copy[j].infected = p_infect(from_worker, to_worker, staff_lunch_infect_prob)
             
-            grades = []
             for g in range(9, 13):
-                grade = pquery.getStudentsInGrade(g)
-                grades.append(grade)
+                grade = grades[g-9]
+                grade_copy = grades_copy[g-9]
                 grade_lunch_infect_prob = probability_of_infection_during_lunch_same_grade(len(grade))
                 for i in range(len(grade)):
                     for j in range(len(grade)):
                         if i != j:
                             from_student = grade[i]
                             to_student = grade[j]
-                            to_student.infected = p_infect(from_student, to_student, grade_lunch_infect_prob)
+                            grade_copy[j].infected = p_infect(from_student, to_student, grade_lunch_infect_prob)
             
             for g in range(len(grades)):
                 cur = grades[g]
                 other = []
+                other_copy = []
                 for i in range(len(grades)):
                     if i != g:
                         other += grades[i]
+                        other_copy += grades_copy[i]
                 grade_lunch_other_infect_prob = probability_of_infection_during_lunch_different_grade(len(cur+grades))
                 for i in range(len(cur)):
                     for j in range(len(other)):
                         from_student = cur[i]
                         to_student = other[j]
-                        to_student.infected = p_infect(from_student, to_student, grade_lunch_other_infect_prob)
+                        other_copy[j].infected = p_infect(from_student, to_student, grade_lunch_other_infect_prob)
+            pquery = pquery_copy
         elif (cur_period == 'extra'):
             for c in clubs:
                 students = pquery.getAllInExtraCurricular(c)
+                
+                pquery_copy = copy.deepcopy(pquery)
+                students_copy = pquery_copy.getAllInExtraCurricular(c)
+                
                 club_infect_prob = probability_of_infection_during_extra_curricular(c, len(students))
                 for i in range(len(students)):
                     for j in range(len(students)):
@@ -312,7 +357,8 @@ def simulate():
                             from_student = students[i]
                             to_student = students[j]
                             to_student.infected = p_infect(from_student, to_student, club_infect_prob)
-        
+                pquery = pquery_copy
+            
         return pquery, data
         
 def getDataForVisualization():

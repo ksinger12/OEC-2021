@@ -8,7 +8,7 @@ social_distancing = 1 - 0.2
 
 # On/Off Switch for protection measures
 protection_measures = {
-    "on": True,
+    "on": False,
     "off": False
 }
 

@@ -20,6 +20,11 @@ Average ages:
 - Teachers -> ~43 (in Ontario) -> source: https://www.google.com/search?q=average+age+of+teaching+assistants+high+school+ontario&rlz=1C5CHFA_enCA815CA815&oq=average+age+of+teaching+assistants+high+school+ontario&aqs=chrome..69i57j0i333.10087j0j7&sourceid=chrome&ie=UTF-8
 
 Assumptions:
-- Desks are cleaned perfectly so no transmission will occur from touching the same surface as someone else
+- Desks are cleaned perfectly so no transmission will occur from touching the same surface as someone else between classes
 - TAs are later/post-grad university students
-- 
+- Measures are in place that will help to minimize the spread of infection (like COVID-19)
+    - i.e. mask wearing, social distancing, disinfecting, etc.
+- Time of exposure effects the probability of being infected
+    - i.e. in class for 45 minutes (relative to exposure) will have a higherly likelihood of leading to other infections than switching between classes
+        - Note: this example is only related to time of exposure, it does not account for other variables
+        

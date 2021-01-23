@@ -173,7 +173,7 @@ def simulate():
         cur_period = times[t]
         
         if (cur_period in ['p1', 'p2', 'p3', 'p4']): #a class period
-            pass
+            
         
 simulate()
     

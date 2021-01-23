@@ -2,5 +2,5 @@ pandas
 xlrd
 openpyxl
 numpy
-enum
-math
+plotly
+networkx

@@ -146,6 +146,9 @@ class PeopleQuery:
         print('TAs')
         for i in self.tas:
             print(i)
+    
+    def max_prob(self):
+        return max([p.infected for p in self.people if p.infected < 1])
         
     #Setters
     def setStudents(self, data):
@@ -431,7 +434,7 @@ def simulate():
                             to_student.infected = p_infect(from_student, to_student, club_infect_prob)
                 pquery = pquery_copy
             
-        return pquery, data
+    return pquery, data
         
 '''
 getDataForVisualization:

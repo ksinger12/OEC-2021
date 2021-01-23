@@ -8,8 +8,6 @@ r0 = 3
 #   -num_people  - the number of people involved in the event
 #   -exposure    - the natural risk factor relating to the activity that takes place during the event
 #   -carefulness - the safety precautions that the involved individuals take during the event
-
-
 def probabiity_of_infection(num_people, exposure, carefulness):
     return exposure * (1 - carefulness) * r0 / num_people
 

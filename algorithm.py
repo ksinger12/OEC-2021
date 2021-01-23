@@ -312,8 +312,27 @@ def simulate():
                             to_student = students[j]
                             to_student.infected = p_infect(from_student, to_student, club_infect_prob)
         
-simulate()
+        return pquery, data
+        
+def getDataForVisualization(pquery, data):
+    classes = data[1]['Class'].unique()
     
+    periods = []
+    for i in range(4):
+        cur_period = 'p{}'.format(i+1)
+        period = {}
+        for c in classes:
+            period[c] = []
+        for c in classes:
+            people = pquery.getStudentsInClass(c, cur_period) + pquery.getTeachersInClass(c, cur_period) + pquery.getTAsInClass(c, cur_period)
+            for p in people:
+                period[c].append(p)
+        periods.append(period)
+    return periods
+        
+pquery, data = simulate()
+
+
 #"Unit" Tests
 
 # p = Person(PType.Student)

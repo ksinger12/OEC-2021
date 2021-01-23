@@ -1,7 +1,8 @@
 import sys
 
-from parseData import data
+from parseData import getData
 
+data = getData()
 print(data)
 
 if __name__ == "__main__":

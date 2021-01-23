@@ -2,8 +2,11 @@ import plotly.graph_objects as go
 import numpy as np
 import networkx as nx
 from itertools import product
-
 import random
+
+from algorithm import Person
+from algorithm import getDataForVisualization
+from algorithm import PType
 
 
 fig = go.Figure()
@@ -75,11 +78,11 @@ def parsePeriod(period):
         G_graphs.append(G_)
     G = nx.disjoint_union_all(G_graphs)
 
-    print(G.nodes(data=True))
-    print(G.nodes)
-    print(G.edges())
+    # print(G.nodes(data=True))
+    # print(G.nodes)
+    # print(G.edges())
 
-    print(G.nodes[3]['pos'])
+    # print(G.nodes[3]['pos'])
     return G
 
 
@@ -139,20 +142,47 @@ def displayGraph(list_of_graphs):
 
         node_adjacencies = []
         node_text = []
-        for node, adjacencies in enumerate(G.adjacency()):
-            node_adjacencies.append(len(adjacencies[1]))
-            node_text.append('# of connections: '+str(len(adjacencies[1])))
+        node_infection_prob = []
 
-        node_trace.marker.color = node_adjacencies
-        node_trace.text = node_text
+        for node in G.nodes(data=True):
+            person = node[1]['data']
+            desc = ''
+            desc += person.fname + " " + person.lname + "<br>"
+            
+            desc += person.ptype.name + "<br>"
+
+            infection_chance = person.infected
+            node_infection_prob.append(infection_chance)
+
+            if infection_chance == 1:
+                desc = "<b>Patient Zero!</b><br>" + desc
+            else:
+                desc += f"Chance of Infection: {infection_chance}<br>"
+            node_text.append(desc)
+
+
+
+        node_connections = []
+        for node, adjacencies in enumerate(G.adjacency()):
+            node_text[node] += 'Close contacts: '+str(len(adjacencies[1]))
+
+        node_trace.marker.color = node_infection_prob
+        node_trace.text = node_text + node_adjacencies
 
 
 
 
         fig.add_traces([edge_trace, node_trace])
 
+
+
     # Make 10th trace visible
+    for dataset in fig.data[2:]:
+        dataset.visible = False
+
     fig.data[0].visible = True
+
+    
     print(G)
     # Create and add slider
     steps = []
@@ -176,13 +206,13 @@ def displayGraph(list_of_graphs):
                         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))}
                         ],  # layout attribute
         )
-        step["args"][0]["visible"][i*2] = True  # Toggle i'th trace to "visible"
-        step["args"][0]["visible"][i*2 + 1] = True  # Toggle i'th trace to "visible"
+        step["args"][0]["visible"][i*2] = True  # Toggle i*2'th trace to "visible"
+        step["args"][0]["visible"][i*2 + 1] = True  # Toggle i*2+1'th trace to "visible"
 
         steps.append(step)
 
     sliders = [dict(
-        active=1,
+        active=0,
         currentvalue={"prefix": "Frequency: "},
         pad={"t": 50},
         steps=steps
@@ -212,34 +242,4 @@ def displayGraph(list_of_graphs):
 
 
 
-# Example
-
-from algorithm import Person
-
-def dummyData():
-    # all of the students and teachers in our world 
-    Andrew = Person("Student")
-    Joe = Person("Student")
-    Fryer = Person("Student")
-    Kyle = Person("Student")
-
-    Manji = Person("Professor")
-
-    TA = Person("Teaching Assistant")
-
-
-
-    # Add all the people with classes to dict 
-    # Key: class name, Value: people  
-    period1 = {"Physics A": [Manji, Andrew, Joe], "Biology A": [TA, Fryer]}
-
-    # Kyle doesn't have a class so he is not included in the dict 
-
-    period2 = { "Physics A": [Manji, Fryer, Kyle], "Biology A": [TA, Andrew, Joe]}
-
-    # combine all of the periods in order to an array
-
-    interactions = [period1, period2]
-    return interactions
-
-displayGraph(parseAllPeriods(dummyData()))
+displayGraph(parseAllPeriods(getDataForVisualization()))

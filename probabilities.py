@@ -15,7 +15,7 @@ def probabiity_of_infection(num_people, exposure, carefulness):
 
 
 def probability_of_infection_in_class(num_students_in_class):
-    carefulness = 0.8  # high because high supervision
+    carefulness = 0.6  # high because high supervision
     exposure = 0.8  # high because lots of students in small space
     return probabiity_of_infection(num_students_in_class, exposure, carefulness)
 

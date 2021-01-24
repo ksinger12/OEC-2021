@@ -3,6 +3,7 @@ import numpy as np
 import networkx as nx
 from itertools import product
 import random
+from math import cos, sin, sqrt
 
 from algorithm import Person
 from algorithm import getDataForVisualization
@@ -10,7 +11,6 @@ from algorithm import PType
 
 
 fig = go.Figure()
-x = 0
 
 def parseAllPeriods(interactions): 
     graphs = []
@@ -61,7 +61,10 @@ def positionByGroup(groupName):
     }
 
     pos = switcher[groupName]
-    return (pos[0] + random.uniform(0, 1), pos[1] + random.uniform(0, 1))
+
+    r = 0.5 * sqrt(random.uniform(0, 1))
+    theta = random.uniform(0, 1) * 2 * 3.14
+    return (pos[0] + r * cos(theta), pos[1] + r * sin(theta))
  
 
 def parsePeriod(period):
@@ -127,8 +130,8 @@ def displayGraph(list_of_graphs):
                 #'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
                 #'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
                 #'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
-                colorscale='Spectral',
-                reversescale=True,
+                colorscale='Picnic',
+                reversescale=False,
                 color=[],
                 size=10,
                 colorbar=dict(
@@ -176,25 +179,24 @@ def displayGraph(list_of_graphs):
 
 
 
-    # Make 10th trace visible
+    # Make 1st trace visible
     for dataset in fig.data[2:]:
         dataset.visible = False
-
-    fig.data[0].visible = True
 
     
     print(G)
     # Create and add slider
     steps = []
+    periods = ["Period 1", "Period 2", "Lunch Period", "Period 3", "Period 4", "Extracurriculars"]
     for i in range(int(len(fig.data)/2)):
         step = dict(
             method="update",
             args=[{"visible": [False] * len(fig.data)},
-                {"title": "Slider switched to step: " + str(i)}, 
+                {"title": periods[i]}, 
                 {"layout":go.Layout(
-                        title='<br>Network graph made with Python',
+                        title="Percent Chance of Infection by Period of Day",
                         titlefont_size=16,
-                        showlegend=False,
+                        showlegend=True,
                         hovermode='closest',
                         margin=dict(b=20,l=5,r=5,t=40),
                         annotations=[ dict(
@@ -213,13 +215,14 @@ def displayGraph(list_of_graphs):
 
     sliders = [dict(
         active=0,
-        currentvalue={"prefix": "Frequency: "},
+        currentvalue={"prefix": "Current Time Period: "},
         pad={"t": 50},
         steps=steps
     )]
 
     fig.update_layout(
-        sliders=sliders
+        sliders=sliders,
+        title="Percent Chance of Infection by Period of Day"
     )
 
     fig.add_layout_image(dict(

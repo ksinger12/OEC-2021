@@ -21,8 +21,7 @@ Average ages:
 
 Assumptions:
 - TAs are later/post-grad university students
-- Measures are in place that will help to minimize the spread of infection (like COVID-19)
-    - i.e. mask wearing, social distancing, disinfecting, etc.
+- The school is aware of the virus and does the bare minimum to reduce the spread of infection
 - Time of exposure effects the probability of being infected
     - i.e. in class for 45 minutes (relative to exposure) will have a higherly likelihood of leading to other infections than switching between classes
         - Note: this example is only related to time of exposure, it does not account for other variables

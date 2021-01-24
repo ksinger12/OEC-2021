@@ -110,11 +110,13 @@ class Person:
             self.fname = data['First Name']
             self.lname = data['Last Name']
             self.iden_num = data['Teacher Number']
+            self.grade = 37
         elif self.ptype == PType.TA:
             for i in range(4):
                 self.classes[i] = data['Period {} Class'.format(i+1)]
             self.fname = data['First Name']
             self.lname = data['Last Name']
+            self.grade = 16
     
     #Sets the infection probability of a person
     def setInfected(self, infected):

@@ -485,8 +485,15 @@ def getDataForVisualization():
                     period[c].append(newP)
         elif (cur_period == 'lunch'):
             for g in range(9, 13):
-                period['Grade{}'.format(g)] = pquery.getStudentsInGrade(g)
-            period['Workers'] = pquery.teachers + pquery.tas
+                period['Grade{}'.format(g)] = []
+            for g in range(9, 13):
+                people = pquery.getStudentsInGrade(g)
+                for p in people:
+                    newP = copy.deepcopy(p)
+                    newP.infected = p.infected[i]
+                    period['Grade{}'.format(g)].append(newP)
+            # period['Workers'] = []
+            # pquery.teachers + pquer1y.tas
         elif (cur_period == 'extra'):
             for c in clubs:
                 period[c] = []
@@ -495,7 +502,7 @@ def getDataForVisualization():
                 for p in people:
                     newP = copy.deepcopy(p)
                     newP.infected = p.infected[i]
-                    period[c].append(p)
+                    period[c].append(newP)
         periods.append(period)
     return periods
     

@@ -136,7 +136,7 @@ def displayGraph(list_of_graphs):
                 size=10,
                 colorbar=dict(
                     thickness=15,
-                    title='Node Connections',
+                    title='% Chance of Infection',
                     xanchor='left',
                     titleside='right'
                 ),
@@ -187,7 +187,7 @@ def displayGraph(list_of_graphs):
     print(G)
     # Create and add slider
     steps = []
-    periods = ["Period 1", "Period 2", "Lunch Period", "Period 3", "Period 4", "Extracurriculars"]
+    periods = ["Period 1 + Movement", "Period 2 + Movement", "Lunch Period + Movement", "Period 3 + Movement", "Period 4 + Movement", "Extracurriculars"]
     for i in range(int(len(fig.data)/2)):
         step = dict(
             method="update",

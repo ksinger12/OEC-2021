@@ -1,5 +1,12 @@
 # OEC-2021
 
+## About
+The competition consisted of showing how a virus infecting Ontario would traverse through a high school in 1 day. The goal was to show the correlations between students, teachers, and TAs. Our program creates a simulation through each stage of the day as to how the virus is spreading through the school and the probability of someone contracting it.
+For more information on the challenge, see the OEC 2021 Programming Competition Package.pdf file.
+
+## Simulation
+Each network represents the different classes, lunch groups (grade), and extra-curriculars the students are in and teachers are supervising. 
+
 ## Project Structure:
 ### requirements.txt
 Contains a list of all of the project dependencies (all of the libraries the project uses)
@@ -25,6 +32,6 @@ Module that runs a simulation of virus spread throughout the school
 ### Activate virtual environemnt
 `source ./venv/bin/activate`
 ### Install dependencies
-`pip3 install -r requirements.txt`
+`pip3 install -r requirement.txt`
 ### Run program
-`python3 main.py`
+`python3 probabilities.py`

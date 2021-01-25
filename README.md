@@ -19,6 +19,8 @@ Module containing functions that calculate probabilities of virus transmission
 ### testProbabilities.py
 Simple script to inspect the probabilities generated from normal conditions
 ### algorithm.py
+Module that runs the algorithm and creates different stages of the day to be visualized (contains code to output probability data to .txt)
+### graph_experiments.py
 Module that runs a simulation of virus spread throughout the school
 
 ## Usage:
@@ -34,4 +36,4 @@ Module that runs a simulation of virus spread throughout the school
 ### Install dependencies
 `pip3 install -r requirement.txt`
 ### Run program
-`python3 probabilities.py`
+`python3 graph_experiments.py`

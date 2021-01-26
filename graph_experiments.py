@@ -42,10 +42,10 @@ def positionByGroup(groupName):
         "Humanities B": (3, 5),
 
         "Grade9": (0, 0),
-        "Grade10": (0, 2),
-        "Grade11": (2, 0),
-        "Grade12": (2, 0),
-        "Workers": (1, 1),
+        "Grade10": (0, 1),
+        "Grade11": (1, 0),
+        "Grade12": (1, 1),
+        "Workers": (0.5, 0.5),
 
         "Board Game Club":(0, 1),
         "Football":(0, 2),
